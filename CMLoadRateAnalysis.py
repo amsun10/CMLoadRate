@@ -17,11 +17,12 @@ TIMER_INTERVAL = 15 # Set the interval that to get CMS LoadRate and save to loca
 DEBUG = 0
 
 class CCMLoadRateParser:
-    def __init__(self,):
+    def __init__(self,index):
         self.cj = cookielib.LWPCookieJar()
         self.Parser = None
         self.Opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
         self.RequestURL = 'http://wxgemini.eng.wux.chin.seagate.com/cgi-bin/cmLoad.py?location=wx'
+        self.Index = index #index that tell us this is the how many time we parse the data
 
     def RequestSummary(self,):
         Summary = {}
@@ -49,6 +50,7 @@ class CCMLoadRateParser:
             for row in table:
                 newRow = list(row)
                 newRow.insert(0,item[0]) #Insert Machine Name In Every Row
+                newRow.insert(0,self.Index) #Insert Machine Name In Every Row
                 f.write(str(newRow)[1:-1]+'\n') #remove "[" and "]"
         f.close()
         pass
@@ -56,8 +58,8 @@ class CCMLoadRateParser:
 def main():
     i = 0
     while(True):
-        print "The %d time Crunching Data " % i
-        OCCMLoarRateParser = CCMLoadRateParser()
+        print "The %d time Crunching Data, current time: %s " % (i,str(time.strftime('%Y-%d-%d %H:%M:%S') ))
+        OCCMLoarRateParser = CCMLoadRateParser(i)
         OCCMLoarRateParser.RequestSummary()
         print "Sleep %d Mins To Start Next Data Crunch " % TIMER_INTERVAL
         time.sleep(TIMER_INTERVAL * 60)
